@@ -1,47 +1,32 @@
-# ShakeSearch Challenge
+# ShakeSearch Answers
 
-Welcome to the Pulley Shakesearch Challenge! This repository contains a simple web app for searching text in the complete works of Shakespeare.
+Hey Pulley!
 
-## Prerequisites
+This document contains the answers to thew coding challenge. I have never touched Go before, but I tried my best. Hope it's fine!
 
-To run the tests, you need to have [Go](https://go.dev/doc/install) and [Docker](https://docs.docker.com/engine/install/) installed on your system.
+- Matt
 
-## Your Task
+## Backend
+1. TestSearchCaseSensitive
+The problem was that CompleteWorks in SuffixArray was case sensitive and the search query was too. The result was Lookup returned nothing.
 
-Your task is to fix the underlying code to make the failing tests in the app pass. There are 3 frontend tests and 3 backend tests, with 2 of each currently failing. You should not modify the tests themselves, but rather improve the code to meet the test requirements. You can use the provided Dockerfile to run the tests or the app locally. The success criteria are to have all 6 tests passing.
+There are a few ways to go about solving this issue, but the best approach, in my view, is making the content SuffixArray all lower case and the search query all lower case.
 
-## Instructions
+This was done using a new function, PopulateSuffixArray, which converted the entire byte array to a lowercase string in one go, without the need for a loop, and then converted it back to a byte array and set it as the SuffixArray. 
 
-<img width="404" alt="image" src="https://github.com/ProlificLabs/shakesearch/assets/98766735/9a5b96b5-0e44-42e1-8d6e-b7a9e08df9a1">
+The reason this approach works is because the actual indexes in SuffixArray do not change, just the text content. With the text content all lower case and the search query all lower case, case is no longer an issue when it comes to searching for matches.
 
-*** 
+2. TestSearchDrunk
+I will note that the test is not clear about what it is testing or what the search function is supposed to return:
+*   Is it testing how many times the query appears in the text?
+*   Is it testing how many 500-character intervals contain the query text? If so, can the intervals overlap and are we trying to optimize for the least amount of overlap possible?
+*   What counts as the query text (ie "Drunk", "drunkard", "drunk’st", "swine-drunk", "drunk?" for the query "drunk"). It's Shakespeare, so "drunk" is everywhere in multiple formats.
 
-**Do not open a pull request or fork the repo**. Use these steps to create a hard copy.
+There is not enough information to deduce what the behavior is supposed to be. That being said, I guessed from the frontend that we wanted to paginate the results. I limited the page size to 20, which is the limit specifed in this test.
 
-1. Create a repository from this one using the "Use this template" button.
-2. Fix the underlying code to make the tests pass
-3. Include a short explanation of your changes in the readme or changelog file
-4. Email us back with a link to your copy of the repo
+## Frontend
+1. "romeo, wherefore art thou"
+The backend solution to TestSearchCaseSensitive fixed this test case. Search is now case insensitive.
 
-## Running the App Locally
-
-
-This command runs the app on your machine and will be available in browser at localhost:3001.
-
-```bash
-make run
-```
-
-## Running the Tests
-
-This command runs backend and frontend tests.
-
-Backend testing directly runs all Go tests.
-
-Frontend testing run the app and mochajs tests inside docker, using internal port 3002.
-
-```bash
-make test
-```
-
-Good luck!
+2. "should load more results"
+I implemented local storage persistance on the frontend for the currentPage and currentRows as well as pagination on the backend. I also implemented a loadMore function and attached it to the load more button via an event listener to get load more actually doing something. 
